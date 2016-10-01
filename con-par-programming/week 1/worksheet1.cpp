@@ -1,10 +1,11 @@
 #include <iostream>
 #include "w1.h"
 
+using namespace std;
+
 /*
 @author ysbecca Rebecca Stone
 */
-
 
 int main()
 {
@@ -16,8 +17,9 @@ int main()
     int numbers[8] = {4, 2, 5, 1, 0, 6, 3, 7};
     // p3(numbers);
     // p5(numbers);
-    int array[] = {1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1, 1, 5};
-    p7(array);
+    int array[] = {1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 6, 1, 5};
+    // p7(array, sizeof(array) / sizeof(array[0]));
+    
 
     return 0;
 }
@@ -27,17 +29,13 @@ Write a program that removes duplicates from an array, and prints the output.
 For example, if the initial array is 1 2 1 3 1 2 1 4 1 2 1 3 1 2 1 1 5, 
 the output should be 1 2 3 4 5.
 */
-void p7(int *array)
+void p7(int *array, int size)
 {
-    int max_size = sizeof(array) / sizeof(array[0]);
-    std::cout << max_size;
+    int max_size = size;
 
     // TOTAL BYTES: sizeof(array) & ELEMENT SIZE: sizeof(array[0])
     int *dups = new int[max_size]();
     int index = 0;
-
-    dups[index] = array[0];
-    index++;
     int found = 0;
 
     for (int i = 0; i < max_size; ++i)
@@ -51,12 +49,13 @@ void p7(int *array)
                 break;
             }
         }
-        if(!found) 
+        if(!found)
         {
             // add to dups
             dups[index] = array[i];
             index++;
         }
+        found = 0; // reset
     }
 
     for (int i = 0; i < index; ++i)

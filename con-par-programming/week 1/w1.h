@@ -7,6 +7,6 @@ void p1();
 void p2();
 void p3(int numbers[]);
 void p5(int numbers[]);
-void p7(int *array);
+void p7(int *array, int size);
 
 #endif
