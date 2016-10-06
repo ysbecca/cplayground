@@ -11,7 +11,7 @@
 using namespace std;
 
 const int INTERVALS = 12;
-const int TAYLOR_TERMS = 20;
+const int TAYLOR_TERMS = 9;
 const int NUM_THREADS = 12;
 #define PI 3.14159265
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
   // threads and the angles array
   thread ids[NUM_THREADS];
-  angles = float[INTERVALS]();
+  angles = new float[INTERVALS]();
 
 	for (int i = 0; i < NUM_THREADS; ++i) {
 		ids[i] = thread(compute_sine, i);
@@ -38,36 +38,35 @@ int main(int argc, char **argv) {
 	}
 
   // print table of sines
+  double angle;
   for (int i = 0; i < INTERVALS; i++) {
-    cout << "Sin(" << "pi/"
+    angle = i * PI / 6.0;
+    cout << "Sin(" << i << " * pi / 6) = " << angles[i]*180 / PI << " degrees" << endl;
   }
 
   return 0;
 }
 
-// 0 1 2 3 4 5
-// 1 3 5 7 9 11
-// num = 2i+1
-void compute_sine(int index {
+
+void compute_sine(int index) {
 
   float total = 0.0;
   float angle = index * PI / 6.0;
   int computed_i;
-  int factorial = 1;
+  long factorial = 1;
 
-  for (int i = 0; i < TAYLOR_TERMS; i++) {
+  for (int i = 1; i <= TAYLOR_TERMS; i++) {
     computed_i = 2*i + 1;
-    if(i == 0)
-      factorial = 1;
-    else
+
+    if(computed_i != 1)
       factorial *= computed_i * (computed_i - 1);
 
     if(i % 2 == 0) {
-      // even term - positive
-      total += pow(angle, computed_i) / factorial;
-    } else {
-      // odd term - negative
+      // even term - negative
       total -= pow(angle, computed_i) / factorial;
+    } else {
+      // odd term - positive
+      total += pow(angle, computed_i) / factorial;
     }
   }
 
