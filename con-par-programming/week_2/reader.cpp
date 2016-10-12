@@ -11,17 +11,18 @@
 
 using namespace std;
 
-// void counter(int index, char data[], int *total_count);
-void counter(int index);
+void counter(int index, unsigned char data[], int *total_count);
+// void counter(int index);
 
-unsigned char data[1 << 18];
-int *total_count;
+// unsigned char data[1 << 18];
+// int *total_count;
 const int NUM_THREADS = 8;
 
 int main(int argc, char **argv)
 {
   std::ifstream src("data.txt");
   unsigned int val;
+  unsigned char data[1 << 18];
   int size = 0;
 
   if (!src) {
@@ -36,11 +37,11 @@ int main(int argc, char **argv)
 
   // threads and the counter array
   thread ids[NUM_THREADS];
-  total_count = new int[NUM_THREADS]();
+  int *total_count = new int[NUM_THREADS];
 
 	for (int i = 0; i < NUM_THREADS; ++i) {
     // pass total_count by reference so they all alter the same data
-		ids[i] = thread(counter, i);
+		ids[i] = thread(counter, i, ref(data), ref(total_count));
 	}
 
 	for (int i = 0; i < NUM_THREADS; ++i) {
@@ -59,8 +60,8 @@ int main(int argc, char **argv)
 }
 
 
-// void counter(int index, char data[], int *total_count) {
-void counter(int index) {
+void counter(int index, unsigned char data[], int *total_count) {
+// void counter(int index) {
   // counter number for debugging
   // cout << "T" << index << endl;
 

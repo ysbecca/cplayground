@@ -53,7 +53,7 @@ void compute_sine(int index) {
   float total = 0.0;
   float angle = index * PI / 6.0;
   int computed_i;
-  long factorial = 1;
+  float factorial = 1.0;
 
   for (int i = 1; i <= TAYLOR_TERMS; i++) {
     computed_i = 2*i + 1;
