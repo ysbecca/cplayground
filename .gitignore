@@ -1,5 +1,5 @@
 
 
 *.DS_Store
-cw*.cpp
+coursework/*
 *.out
