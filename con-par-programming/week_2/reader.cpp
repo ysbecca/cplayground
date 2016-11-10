@@ -12,10 +12,7 @@
 using namespace std;
 
 void counter(int index, unsigned char data[], int *total_count);
-// void counter(int index);
 
-// unsigned char data[1 << 18];
-// int *total_count;
 const int NUM_THREADS = 8;
 
 int main(int argc, char **argv)
@@ -51,7 +48,6 @@ int main(int argc, char **argv)
   int final_sum = 0;
   for (int i = 0; i < NUM_THREADS; i++) {
     final_sum += total_count[i];
-    // cout << total_count[i] << endl;
   }
 
   cout << "FINAL SUM: " << final_sum << endl;
@@ -61,9 +57,6 @@ int main(int argc, char **argv)
 
 
 void counter(int index, unsigned char data[], int *total_count) {
-// void counter(int index) {
-  // counter number for debugging
-  // cout << "T" << index << endl;
 
   int start = index * pow(2, 18) / NUM_THREADS;
   int end = (index + 1) * pow(2, 18) / NUM_THREADS;
@@ -76,6 +69,4 @@ void counter(int index, unsigned char data[], int *total_count) {
   }
 
   total_count[index] = partial_sum;
-  // cout << index << " Done." << endl;
-
 }

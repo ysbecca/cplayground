@@ -19,9 +19,8 @@ using namespace std;
 // FUNCTION HEADERS
 void sorter(int index, int data[]);
 void merger(int index, int parts, int data[], int merged[]);
-void print_data(int data[]);
+void print_data(int data[]); // For when you want to see printed output.
 
-// GLOBAL VARIABLES
 // Number of threads to run.
 const int NUM_THREADS = 32;
 // Default size of array to sort.
@@ -34,8 +33,10 @@ int main(int argc, char **argv) {
 
 	srand(time(NULL)); // Pseudo-random time.
 	for (int i = 0; i < ARRAY_SIZE; ++i) {
-		data[i] = rand() % 100; // To make debugging easier.
+		data[i] = rand() % 100;
 	}
+	cout << "Created an array of size " << ARRAY_SIZE << ", full of random ints." << endl;
+	cout << "Creating " << NUM_THREADS << " threads to work on sorting it..." << endl;
 
 	// Create threads and task them with sorting, then rejoin.
 	thread ids[NUM_THREADS];
@@ -45,6 +46,8 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < NUM_THREADS; ++i) {
 		ids[i].join();
 	}
+
+	cout << "Merging..." << endl;
 
 	// For as long as we have more than one part, set threads merging.
 	for(int parts = NUM_THREADS / 2; parts >= 1; parts = parts / 2) {
@@ -61,21 +64,22 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	cout << "Checking result..." << endl;
 	// Check result and display.
 	int is_correct = 1;
 	for (int i = 0; i < ARRAY_SIZE - 1; ++i) {
 		if(data[i] > data[i + 1]) {
-			cout << "ERROR: the array is not sorted." << endl;
 			is_correct = 0;
 			break;
 		}
 	}
 	if(is_correct)
-		cout << "Array is sorted!" << endl;
+		cout << "Whoopie! Array is sorted." << endl;
+	else
+		cout << "Oups! ERROR: the array is not sorted." << endl;
 
-	delete [] merged;
+	delete [] merged; // Tidy up.
 	delete [] data;
-
 	return 0;
 }
 
