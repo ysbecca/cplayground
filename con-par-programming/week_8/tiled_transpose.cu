@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 #include "check.h"
-#define N 4 // Matrix dimension
-#define TILES 2 // How many tiles along one coordinate
+#define N 8 // Matrix dimension
+#define TILES 4 // How many tiles along one coordinate
 
 __global__
 void transpose(int *M, int *T)
@@ -19,7 +19,7 @@ void transpose(int *M, int *T)
   int tid2 = ((gridDim.x * blockDim.x) * idy2) + idx2;
 
   if (tid1 < N*N) {
-      T[tid1] = threadIdx.y;
+      T[tid1] = M[tid2];
   }
 }
 
@@ -44,9 +44,9 @@ int main(int argc, char **argv)
   CHECK( cudaMemcpy( dev_M, M, N*N*sizeof(int), cudaMemcpyHostToDevice) );
   CHECK( cudaMemcpy( dev_T, T, N*N*sizeof(int), cudaMemcpyHostToDevice) );
 
-  dim3 grid(N, N);
+  dim3 grid(N/TILES, N/TILES);
   int threads_dim = N / TILES; // Threads per tile across one coordinate.
-  dim3 threads(threads_dim, threads_dim);
+  dim3 threads(TILES, TILES);
 
   printf( "Matrix of (%d by %d) with (%d by %d) thread blocks.\n", N, N, threads_dim, threads_dim);
 
