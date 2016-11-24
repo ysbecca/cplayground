@@ -8,9 +8,13 @@ Prof. David Duke
 */
 
 #include <stdio.h>
-#include "sobel_filter.h"
+
 #define CHECK(e) { int res = (e); if (res) printf("CUDA ERROR %d\n", res); }
-#define THRESH 10000
+#define THRESHOLD 10000
+#define WIDTH 640
+#define HEIGHT 480
+
+#include "sobel_filter.h"
 
 // Image data structure.
 struct Image {
@@ -62,6 +66,7 @@ int main(int argc, char **argv)
   Image grayScale;
   grayScale.width = source.width;
   grayScale.height = source.height;
+  printf("Width %d, height %d\n", source.width, source.height);
   grayScale.img = (unsigned char *)malloc(pixels);
   for (int i = 0; i < pixels; i++)
   {
@@ -70,18 +75,45 @@ int main(int argc, char **argv)
       unsigned int b = source.img[i*3 + 2];
       grayScale.img[i] = 0.2989*r + 0.5870*g + 0.1140*b;
   }
-
-
+  // The structure on CPU for the filtered image to be saved into.
   Image filtered;
   filtered.width = source.width;
   filtered.height = source.height;
   filtered.img = (unsigned char *)malloc(pixels);
 
+  // Allocate memory for the images on the GPU
+  CHECK( cudaMalloc( (void**)&grayScale.dev_img, pixels ) );
+  CHECK( cudaMalloc( (void**)&filtered.dev_img, pixels ) );
 
+  // Copy the input arrays from host to device
+  CHECK( cudaMemcpy( grayScale.dev_img, grayScale.img, pixels, cudaMemcpyHostToDevice) );
+  CHECK( cudaMemcpy( filtered.dev_img, filtered.img, pixels, cudaMemcpyHostToDevice) );
 
+  // One thread per pixel; assume image size /32
+  dim3 grid(source.width, source.height);
 
+  // Start the timer.
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start, 0);
 
-  // Writes a filtered image back to my_sobel.pgm
+  // Do work on GPU.
+  apply_sobel<<<grid,1>>>( grayScale.dev_img, filtered.dev_img );
+
+  // Stop time.
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+
+  // Copy the results back from device to host image
+  CHECK( cudaMemcpy( filtered.img, filtered.dev_img, pixels, cudaMemcpyDeviceToHost) );
+
+  // Display the elapsed time
+  float t;
+  cudaEventElapsedTime(&t, start, stop);
+  printf("GPU took %f to complete task.\n", t);
+
+  // Writes the filtered image back to my_sobel.pgm
   FILE *out;
   if (!(out = fopen("my_sobel.pgm", "wb")))
   {
@@ -95,10 +127,11 @@ int main(int argc, char **argv)
       exit(1);
   }
   fclose(out);
-
+  // Tidy-up everything
   free(grayScale.img);
   free(source.img);
   free(filtered.img);
-
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
   exit(0);
 }
